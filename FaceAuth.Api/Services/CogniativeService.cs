@@ -19,68 +19,87 @@ namespace FaceAuth.Api.Services
         public static RestClient cogniativeServiceClient = new RestClient(Settings.CogniativeServiceUrl);
         public static async Task<List<DetectedFace>> DetectFaceRequest(byte[] Image)
         {
-
-            HttpClient client = new HttpClient();
-
-            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
-
-            string requestParameters = "returnFaceId=true";
-
-            string uri = Settings.CogniativeServiceUrl+ "detect?" + requestParameters;
-
-            HttpResponseMessage response;
-
-            using (ByteArrayContent content = new ByteArrayContent(Image))
+            try
             {
-                content.Headers.ContentType =new MediaTypeHeaderValue("application/octet-stream");
+                cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
 
-                response = await client.PostAsync(uri, content);
+                var request = new RestRequest("detect");
+                request.AddQueryParameter("returnFaceId", "true");
+                request.AddQueryParameter("recognitionModel", Settings.CogniativeServiceRecognitionModel);
 
-                string jsonResponse = await response.Content.ReadAsStringAsync();
+                request.AddParameter("application/octet-stream", Image, ParameterType.RequestBody);
 
-                var DetectedFace = JsonConvert.DeserializeObject<List<DetectedFace>>(jsonResponse);
-         
-                return DetectedFace;
+                var response = await cogniativeServiceClient.PostAsync<List<DetectedFace>>(request);
+
+                return response;
             }
+            catch
+            {
+                throw;
+            }
+
+
+
         }
 
         public static async Task<CreatePersonResponse> CreatePerson(string FaceId, CreatePerson createPerson)
         {
-            cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
+            try
+            {
+                cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
 
-            var request = new RestRequest("persongroups/{persongroupid}/persons");
-            request.AddJsonBody(createPerson);
-            request.AddUrlSegment("persongroupid", Settings.CogniativeServicePersonGroupId);
+                var request = new RestRequest("persongroups/{persongroupid}/persons");
+                request.AddJsonBody(createPerson);
+                request.AddUrlSegment("persongroupid", Settings.CogniativeServicePersonGroupId);
 
-            var response = await cogniativeServiceClient.PostAsync<CreatePersonResponse>(request);
+                var response = await cogniativeServiceClient.PostAsync<CreatePersonResponse>(request);
 
-            return response;
+                return response;
+            }
+            catch
+            {
+                throw;
+            }
+
         }
 
-        public static async Task<AddFaceResponse> AddFace(string personId, byte[] Image)
+        public static async Task AddFace(string personId, byte[] Image)
         {
-            HttpClient client = new HttpClient();
-
-            client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
-
-            string requestParameters = "returnFaceId=true";
-
-            string uri = Settings.CogniativeServiceUrl + "detect?" + requestParameters;
-
-            HttpResponseMessage response;
-
-            using (ByteArrayContent content = new ByteArrayContent(Image))
+            try
             {
-                content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+                cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
 
-                response = await client.PostAsync(uri, content);
+                var request = new RestRequest("persongroups/{persongroupid}/persons/{personId}/persistedFaces");
+                request.AddUrlSegment("persongroupid", Settings.CogniativeServicePersonGroupId);
+                request.AddUrlSegment("personId", personId);
 
-                string jsonResponse = await response.Content.ReadAsStringAsync();
+                request.AddParameter("application/octet-stream", Image, ParameterType.RequestBody);
 
-                var DetectedFace = JsonConvert.DeserializeObject<AddFaceResponse>(jsonResponse);
-
-                return DetectedFace;
+                await cogniativeServiceClient.PostAsync<AddFaceResponse>(request);
             }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public static async Task TrainPersonGroup()
+        {
+            try
+            {
+                var cancellationTokenSource = new CancellationTokenSource();
+                cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
+
+                var request = new RestRequest("persongroups/{persongroupid}/train");
+                request.AddUrlSegment("persongroupid", Settings.CogniativeServicePersonGroupId);
+
+                await cogniativeServiceClient.ExecuteTaskAsync(request, cancellationTokenSource.Token, Method.POST);
+            }
+            catch
+            {
+                throw;
+            }
+
         }
     }
 }

@@ -10,5 +10,6 @@ namespace FaceAuth.Api
         public readonly static string CogniativeServiceUrl = Environment.GetEnvironmentVariable("CogniativeServiceUrl");
         public readonly static string CogniativeServiceKey = Environment.GetEnvironmentVariable("CogniativeServiceKey");
         public readonly static string CogniativeServicePersonGroupId = Environment.GetEnvironmentVariable("CogniativeServicePersonGroupId");
+        public readonly static string CogniativeServiceRecognitionModel = Environment.GetEnvironmentVariable("CogniativeServiceRecognitionModel");
     }
 }

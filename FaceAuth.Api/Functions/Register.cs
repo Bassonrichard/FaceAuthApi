@@ -19,37 +19,47 @@ using FaceAuth.Api.Models.CognitiveServices.Requests;
 
 namespace FaceAuth.Api
 {
-    public class Register: ControllerBase
+    public class Register : ControllerBase
     {
         [FunctionName("Register")]
-        public async  Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function,"post", Route = null)]HttpRequestMessage req, ILogger log)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)]HttpRequestMessage req, ILogger log)
         {
-            var registerRequest = JsonConvert.DeserializeObject<RegisterRequest>(await req.Content.ReadAsStringAsync());
-
-
-            var createPerson = new CreatePerson()
+            try
             {
-                name = registerRequest.Email,
-                userData = registerRequest.FullName
-            };
+                var registerRequest = JsonConvert.DeserializeObject<RegisterRequest>(await req.Content.ReadAsStringAsync());
 
-            var image = Formatter.DataUriToByteArray(registerRequest.DataUri);
-            //  var Url = await BlobStorageService.WriteImageToBlob(image,log);
+                var createPerson = new CreatePerson()
+                {
+                    name = registerRequest.Email,
+                    userData = registerRequest.FullName
+                };
 
-            var detectedFace = await CogniativeService.DetectFaceRequest(image);
+                var image = Formatter.DataUriToByteArray(registerRequest.DataUri);
+                //  var Url = await BlobStorageService.WriteImageToBlob(image,log);
 
-            if (detectedFace.Count < 0)
-            {
-                return NotFound(ErrorMessages.FaceNotFound);
+                var detectedFace = await CogniativeService.DetectFaceRequest(image);
+
+                if (detectedFace.Count < 0)
+                {
+                    return NotFound(ErrorMessages.FaceNotFound);
+                }
+                else if (detectedFace.Count > 1)
+                {
+                    return BadRequest(ErrorMessages.TooManyFacesDetected);
+                }
+
+                var person = await CogniativeService.CreatePerson(detectedFace[0].faceId, createPerson);
+                await CogniativeService.AddFace(person.personId, image);
+                await CogniativeService.TrainPersonGroup();
+
+                return Ok(createPerson);
             }
-            else if(detectedFace.Count > 1)
+            catch (Exception ex)
             {
-                return BadRequest(ErrorMessages.TooManyFacesDetected);
+                log.LogError("Technical Error: ", ex);
+                return BadRequest(string.Format("Technical Error, unable to register: {0}", ex.InnerException.Message));
             }
-
-            var response = await CogniativeService.CreatePerson(detectedFace[0].faceId, createPerson);
-
-            return Ok(response);
+            
         }
     }
 }
