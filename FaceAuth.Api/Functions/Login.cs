@@ -39,7 +39,18 @@ namespace FaceAuth.Api.Functions
                 }
 
                 var personId = await CogniativeService.IdentifyPerson(detectedFace[0].faceId);
+
+                if (string.IsNullOrEmpty(personId))
+                {
+                    return BadRequest(ErrorMessages.NotRegistered);
+                }
+
                 var person = await CogniativeService.GetPerson(personId);
+
+                if (person == null)
+                {
+                    return NotFound(ErrorMessages.PersonNotFound);
+                }
 
                 if (loginRequest.Email.ToLower() == person.Name.ToLower())
                 {
@@ -60,7 +71,7 @@ namespace FaceAuth.Api.Functions
             catch (Exception ex)
             {
                 log.LogError("Technical Error: ", ex);
-                return BadRequest(string.Format("Technical Error, unable to register: {0}", ex.InnerException.Message));
+                return BadRequest(string.Format("Technical Error, unable to login: {0}", ex.InnerException.Message));
             }
         }
     }

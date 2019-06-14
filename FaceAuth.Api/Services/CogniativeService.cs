@@ -124,10 +124,24 @@ namespace FaceAuth.Api.Services
 
                 var response = await cogniativeServiceClient.PostAsync<List<IdentifyPersonResponse>>(request);
 
-                var Candidates = response.FirstOrDefault().Candidates;
-                var candidate = Candidates.FirstOrDefault();
-
-                return candidate.PersonId;
+                if (response.Count > 0)
+                {
+                    var Candidates = response.FirstOrDefault().Candidates;
+                    if (Candidates.Count > 0)
+                    {
+                        var candidate = Candidates.FirstOrDefault();
+                        return candidate.PersonId;
+                    }
+                    else
+                    {
+                        return string.Empty;
+                    }
+                }
+                else
+                {
+                    return string.Empty;
+                }                               
+                
             }
             catch
             {
