@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using RestSharp;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -100,6 +101,58 @@ namespace FaceAuth.Api.Services
                 throw;
             }
 
+        }
+
+        public static async Task<string> IdentifyPerson(string faceId)
+        {
+            try
+            {
+                cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
+
+                var request = new RestRequest("identify");
+
+                var identifyRequest = new IdentifyPerson()
+                {
+                    personGroupId = Settings.CogniativeServicePersonGroupId,
+                    faceIds = new List<string>()
+                    {
+                        faceId
+                    }
+                };
+
+                request.AddJsonBody(identifyRequest);
+
+                var response = await cogniativeServiceClient.PostAsync<List<IdentifyPersonResponse>>(request);
+
+                var Candidates = response.FirstOrDefault().Candidates;
+                var candidate = Candidates.FirstOrDefault();
+
+                return candidate.PersonId;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public static async Task<GetPersonResponse> GetPerson(string personId)
+        {
+            try
+            {
+                cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
+
+                var request = new RestRequest("persongroups/{persongroupid}/persons/{personId}");
+                request.AddUrlSegment("persongroupid", Settings.CogniativeServicePersonGroupId);
+                request.AddUrlSegment("personId", personId);
+
+                var response = await cogniativeServiceClient.GetAsync<GetPersonResponse>(request);
+
+                return response;
+            }
+            catch
+            {
+                throw;
+            }
         }
     }
 }
