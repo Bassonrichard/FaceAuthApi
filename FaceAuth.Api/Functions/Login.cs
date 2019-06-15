@@ -22,14 +22,21 @@ namespace FaceAuth.Api.Functions
         {
             try
             {
-                var loginRequest = JsonConvert.DeserializeObject<LoginRequest>(await req.Content.ReadAsStringAsync());
+                var jsonString = await req.Content.ReadAsStringAsync();
+                var loginRequest = JsonConvert.DeserializeObject<LoginRequest>(jsonString);
+
+                if (string.IsNullOrEmpty(loginRequest.DataUri))
+                {
+                    return BadRequest(ErrorMessages.ImageNotFound);
+                }
+
 
                 var image = Formatter.DataUriToByteArray(loginRequest.DataUri);
                 //  var Url = await BlobStorageService.WriteImageToBlob(image,log);
 
                 var detectedFace = await CogniativeService.DetectFaceRequest(image);
 
-                if (detectedFace.Count < 0)
+                if (detectedFace.Count == 0)
                 {
                     return NotFound(ErrorMessages.FaceNotFound);
                 }

@@ -26,7 +26,14 @@ namespace FaceAuth.Api
         {
             try
             {
-                var registerRequest = JsonConvert.DeserializeObject<RegisterRequest>(await req.Content.ReadAsStringAsync());
+                var jsonString = await req.Content.ReadAsStringAsync();
+
+                var registerRequest = JsonConvert.DeserializeObject<RegisterRequest>(jsonString);
+
+                if (string.IsNullOrEmpty(registerRequest.DataUri))
+                {
+                    return BadRequest(ErrorMessages.ImageNotFound);
+                }
 
                 var createPerson = new CreatePerson()
                 {
@@ -39,7 +46,7 @@ namespace FaceAuth.Api
 
                 var detectedFace = await CogniativeService.DetectFaceRequest(image);
 
-                if (detectedFace.Count < 0)
+                if (detectedFace.Count == 0)
                 {
                     return NotFound(ErrorMessages.FaceNotFound);
                 }
