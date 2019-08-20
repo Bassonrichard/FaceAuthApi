@@ -9,10 +9,15 @@ using System.Threading.Tasks;
 
 namespace FaceAuth.Api.Services
 {
-    public class BlobStorageService
+    public interface IBlobStorageService
     {
-        public static JsonSerializer _serializer = new JsonSerializer();
-        public static async Task<string> WriteImageToBlob(byte[] Image, ILogger _logger)
+        Task<string> WriteImageToBlob(byte[] Image, ILogger _logger);
+    }
+
+    public class BlobStorageService : IBlobStorageService
+    {
+        private readonly JsonSerializer _serializer = new JsonSerializer();
+        public  async Task<string> WriteImageToBlob(byte[] Image, ILogger _logger)
         {
             CloudStorageAccount cloudStorageAccount;
             CloudBlockBlob cloudBlockBlob;

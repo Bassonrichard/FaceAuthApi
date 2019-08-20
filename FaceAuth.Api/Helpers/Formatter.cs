@@ -5,15 +5,20 @@ using System.Text.RegularExpressions;
 
 namespace FaceAuth.Api.Helper
 {
-    public class Formatter
+    public interface IFormatter
     {
-        public static byte[] DataUriToByteArray(string DataUri)
+        byte[] DataUriToByteArray(string DataUri);
+        string JsonPrettyPrint(string json);
+    }
+    public class Formatter : IFormatter
+    {
+        public  byte[] DataUriToByteArray(string DataUri)
         {
             var base64Data = Regex.Match(DataUri, @"data:image/(?<type>.+?),(?<data>.+)").Groups["data"].Value;
             return Convert.FromBase64String(base64Data);
         }
 
-        public static string JsonPrettyPrint(string json)
+        public  string JsonPrettyPrint(string json)
         {
             if (string.IsNullOrEmpty(json))
                 return string.Empty;
@@ -31,7 +36,7 @@ namespace FaceAuth.Api.Helper
                 switch (ch)
                 {
                     case '"':
-                        if (!ignore) quote = !quote;
+                         quote = !quote;
                         break;
                     case '\'':
                         if (quote) ignore = !ignore;

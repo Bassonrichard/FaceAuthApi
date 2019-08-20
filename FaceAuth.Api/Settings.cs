@@ -4,7 +4,7 @@ using System.Text;
 
 namespace FaceAuth.Api
 {
-    public class Settings
+    public static class Settings
     {
         public readonly static string StorageURL = Environment.GetEnvironmentVariable("StorageURL");
         public readonly static string CogniativeServiceUrl = Environment.GetEnvironmentVariable("CogniativeServiceUrl");

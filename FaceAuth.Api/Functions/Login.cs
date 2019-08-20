@@ -15,8 +15,17 @@ using FaceAuth.Api.Models.Functions.Response;
 
 namespace FaceAuth.Api.Functions
 {
-    public class Login:ControllerBase
+    public class Login : ControllerBase
     {
+        private readonly IFormatter _formatter;
+        private readonly ICogniativeService _cogniativeService;
+
+        public Login(IFormatter formatter, ICogniativeService cogniativeService)
+        {
+            _formatter = formatter;
+            _cogniativeService = cogniativeService;
+        }
+
         [FunctionName("Login")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)]HttpRequestMessage req, ILogger log)
         {
@@ -31,10 +40,9 @@ namespace FaceAuth.Api.Functions
                 }
 
 
-                var image = Formatter.DataUriToByteArray(loginRequest.DataUri);
-                //  var Url = await BlobStorageService.WriteImageToBlob(image,log);
+                var image = _formatter.DataUriToByteArray(loginRequest.DataUri);
 
-                var detectedFace = await CogniativeService.DetectFaceRequest(image);
+                var detectedFace = await _cogniativeService.DetectFaceRequest(image);
 
                 if (detectedFace.Count == 0)
                 {
@@ -45,14 +53,14 @@ namespace FaceAuth.Api.Functions
                     return BadRequest(ErrorMessages.TooManyFacesDetected);
                 }
 
-                var personId = await CogniativeService.IdentifyPerson(detectedFace[0].faceId);
+                var personId = await _cogniativeService.IdentifyPerson(detectedFace[0].faceId);
 
                 if (string.IsNullOrEmpty(personId))
                 {
                     return BadRequest(ErrorMessages.NotRegistered);
                 }
 
-                var person = await CogniativeService.GetPerson(personId);
+                var person = await _cogniativeService.GetPerson(personId);
 
                 if (person == null)
                 {

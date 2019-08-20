@@ -14,14 +14,23 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace FaceAuth.Api.Services
-{
-    public class CogniativeService
+{ 
+    public interface ICogniativeService
     {
-        public static RestClient cogniativeServiceClient = new RestClient(Settings.CogniativeServiceUrl);
-        public static async Task<List<DetectedFace>> DetectFaceRequest(byte[] Image)
+         Task<List<DetectedFace>> DetectFaceRequest(byte[] Image);
+         Task<CreatePersonResponse> CreatePerson(string FaceId, CreatePerson createPerson);
+         Task AddFace(string personId, byte[] Image);
+         Task TrainPersonGroup();
+        Task<string> IdentifyPerson(string faceId);
+        Task<GetPersonResponse> GetPerson(string personId);
+
+    }
+
+    public class CogniativeService : ICogniativeService
+    {
+        private readonly RestClient cogniativeServiceClient = new RestClient(Settings.CogniativeServiceUrl);
+        public  async Task<List<DetectedFace>> DetectFaceRequest(byte[] Image)
         {
-            try
-            {
                 cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
 
                 var request = new RestRequest("detect");
@@ -33,20 +42,10 @@ namespace FaceAuth.Api.Services
                 var response = await cogniativeServiceClient.PostAsync<List<DetectedFace>>(request);
 
                 return response;
-            }
-            catch
-            {
-                throw;
-            }
-
-
-
         }
 
-        public static async Task<CreatePersonResponse> CreatePerson(string FaceId, CreatePerson createPerson)
+        public  async Task<CreatePersonResponse> CreatePerson(string FaceId, CreatePerson createPerson)
         {
-            try
-            {
                 cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
 
                 var request = new RestRequest("persongroups/{persongroupid}/persons");
@@ -56,18 +55,10 @@ namespace FaceAuth.Api.Services
                 var response = await cogniativeServiceClient.PostAsync<CreatePersonResponse>(request);
 
                 return response;
-            }
-            catch
-            {
-                throw;
-            }
-
         }
 
-        public static async Task AddFace(string personId, byte[] Image)
+        public  async Task AddFace(string personId, byte[] Image)
         {
-            try
-            {
                 cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
 
                 var request = new RestRequest("persongroups/{persongroupid}/persons/{personId}/persistedFaces");
@@ -77,17 +68,10 @@ namespace FaceAuth.Api.Services
                 request.AddParameter("application/octet-stream", Image, ParameterType.RequestBody);
 
                 await cogniativeServiceClient.PostAsync<AddFaceResponse>(request);
-            }
-            catch
-            {
-                throw;
-            }
         }
 
-        public static async Task TrainPersonGroup()
+        public  async Task TrainPersonGroup()
         {
-            try
-            {
                 var cancellationTokenSource = new CancellationTokenSource();
                 cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
 
@@ -95,18 +79,10 @@ namespace FaceAuth.Api.Services
                 request.AddUrlSegment("persongroupid", Settings.CogniativeServicePersonGroupId);
 
                 await cogniativeServiceClient.ExecuteTaskAsync(request, cancellationTokenSource.Token, Method.POST);
-            }
-            catch
-            {
-                throw;
-            }
-
         }
 
-        public static async Task<string> IdentifyPerson(string faceId)
+        public  async Task<string> IdentifyPerson(string faceId)
         {
-            try
-            {
                 cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
 
                 var request = new RestRequest("identify");
@@ -141,18 +117,10 @@ namespace FaceAuth.Api.Services
                 {
                     return string.Empty;
                 }                               
-                
-            }
-            catch
-            {
-                throw;
-            }
         }
 
-        public static async Task<GetPersonResponse> GetPerson(string personId)
+        public  async Task<GetPersonResponse> GetPerson(string personId)
         {
-            try
-            {
                 cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
 
                 var request = new RestRequest("persongroups/{persongroupid}/persons/{personId}");
@@ -162,11 +130,6 @@ namespace FaceAuth.Api.Services
                 var response = await cogniativeServiceClient.GetAsync<GetPersonResponse>(request);
 
                 return response;
-            }
-            catch
-            {
-                throw;
-            }
         }
     }
 }

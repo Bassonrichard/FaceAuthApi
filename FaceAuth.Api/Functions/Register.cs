@@ -21,6 +21,15 @@ namespace FaceAuth.Api
 {
     public class Register : ControllerBase
     {
+        private readonly IFormatter _formatter;
+        private readonly ICogniativeService _cogniativeService;
+
+        public Register(IFormatter formatter, ICogniativeService cogniativeService)
+        {
+            _formatter = formatter;
+            _cogniativeService = cogniativeService; 
+        }
+
         [FunctionName("Register")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)]HttpRequestMessage req, ILogger log)
         {
@@ -41,10 +50,9 @@ namespace FaceAuth.Api
                     userData = registerRequest.FullName
                 };
 
-                var image = Formatter.DataUriToByteArray(registerRequest.DataUri);
-                //  var Url = await BlobStorageService.WriteImageToBlob(image,log);
+                var image = _formatter.DataUriToByteArray(registerRequest.DataUri);
 
-                var detectedFace = await CogniativeService.DetectFaceRequest(image);
+                var detectedFace = await _cogniativeService.DetectFaceRequest(image);
 
                 if (detectedFace.Count == 0)
                 {
@@ -55,9 +63,9 @@ namespace FaceAuth.Api
                     return BadRequest(ErrorMessages.TooManyFacesDetected);
                 }
 
-                var person = await CogniativeService.CreatePerson(detectedFace[0].faceId, createPerson);
-                await CogniativeService.AddFace(person.personId, image);
-                await CogniativeService.TrainPersonGroup();
+                var person = await _cogniativeService.CreatePerson(detectedFace[0].faceId, createPerson);
+                await _cogniativeService.AddFace(person.personId, image);
+                await _cogniativeService.TrainPersonGroup();
 
                 return Ok(createPerson);
             }
