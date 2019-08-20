@@ -14,8 +14,7 @@ using Microsoft.Extensions.Logging;
 using FaceAuth.Api.Helper;
 using System;
 using System.Linq;
-using FaceAuth.Api.Models.CognitiveServices;
-using FaceAuth.Api.Models.CognitiveServices.Requests;
+using FaceAuth.Api.Services.Models.CognitiveServices.Requests;
 
 namespace FaceAuth.Api
 {

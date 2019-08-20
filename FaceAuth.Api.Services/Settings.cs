@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace FaceAuth.Api
+namespace FaceAuth.Api.Services
 {
     public static class Settings
     {

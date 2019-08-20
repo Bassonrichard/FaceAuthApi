@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace FaceAuth.Api.Models.CognitiveServices.Responses
+namespace FaceAuth.Api.Services.Models.CognitiveServices.Responses
 {
     public class FaceRectangle
     {

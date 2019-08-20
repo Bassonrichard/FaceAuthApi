@@ -1,8 +1,6 @@
-﻿using FaceAuth.Api.Helper;
-using FaceAuth.Api.Models.CognitiveServices;
-using FaceAuth.Api.Models.CognitiveServices.Requests;
-using FaceAuth.Api.Models.CognitiveServices.Responses;
-using Newtonsoft.Json;
+﻿
+using FaceAuth.Api.Services.Models.CognitiveServices.Requests;
+using FaceAuth.Api.Services.Models.CognitiveServices.Responses;
 using RestSharp;
 using System;
 using System.Collections.Generic;

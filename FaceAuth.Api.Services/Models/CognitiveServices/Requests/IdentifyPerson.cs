@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace FaceAuth.Api.Models.CognitiveServices.Requests
+namespace FaceAuth.Api.Services.Models.CognitiveServices.Requests
 {
     public class IdentifyPerson
     {
