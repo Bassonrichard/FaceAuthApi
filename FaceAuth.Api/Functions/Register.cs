@@ -30,11 +30,11 @@ namespace FaceAuth.Api
         }
 
         [FunctionName("Register")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)]HttpRequestMessage req, ILogger log)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)]HttpRequest req, ILogger log)
         {
             try
             {
-                var jsonString = await req.Content.ReadAsStringAsync();
+                var jsonString = await req.ReadAsStringAsync();
 
                 var registerRequest = JsonConvert.DeserializeObject<RegisterRequest>(jsonString);
 

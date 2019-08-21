@@ -5,11 +5,11 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System.Net.Http;
 using FaceAuth.Api.Models.Functions;
 using FaceAuth.Api.Helper;
 using FaceAuth.Api.Models.Functions.Response;
 using FaceAuth.Api.Services;
+using Microsoft.AspNetCore.Http;
 
 namespace FaceAuth.Api.Functions
 {
@@ -25,11 +25,11 @@ namespace FaceAuth.Api.Functions
         }
 
         [FunctionName("Login")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)]HttpRequestMessage req, ILogger log)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)]HttpRequest req, ILogger log)
         {
             try
             {
-                var jsonString = await req.Content.ReadAsStringAsync();
+                var jsonString = await req.ReadAsStringAsync();
                 var loginRequest = JsonConvert.DeserializeObject<LoginRequest>(jsonString);
 
                 if (string.IsNullOrEmpty(loginRequest.DataUri))
