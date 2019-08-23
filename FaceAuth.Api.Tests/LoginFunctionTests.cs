@@ -28,7 +28,7 @@ namespace FaceAuth.Api.Tests
         public async Task SuccessFulLogin()
         {
             #region Assume
-            string dataUri = System.IO.File.ReadAllText(@".\TestData\Base64Image.txt");
+            string dataUri = System.IO.File.ReadAllText(@"./TestData/Base64Image.txt");
             string personId = "a75e036d-48fa-42a6-85ca-dd2bb0d9db11";
             string faceId = "bd02056c-d0e7-4b6e-adef-0383ba343aff";
 
