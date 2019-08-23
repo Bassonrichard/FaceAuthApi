@@ -20,7 +20,7 @@ namespace FaceAuth.Api.Services
          Task AddFace(string personId, byte[] Image);
          Task TrainPersonGroup();
         Task<string> IdentifyPerson(string faceId);
-        Task<GetPersonResponse> GetPerson(string personId);
+        Task<Person> GetPerson(string personId);
 
     }
 
@@ -117,7 +117,7 @@ namespace FaceAuth.Api.Services
                 }                               
         }
 
-        public  async Task<GetPersonResponse> GetPerson(string personId)
+        public  async Task<Person> GetPerson(string personId)
         {
                 cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
 
@@ -125,7 +125,7 @@ namespace FaceAuth.Api.Services
                 request.AddUrlSegment("persongroupid", Settings.CogniativeServicePersonGroupId);
                 request.AddUrlSegment("personId", personId);
 
-                var response = await cogniativeServiceClient.GetAsync<GetPersonResponse>(request);
+                var response = await cogniativeServiceClient.GetAsync<Person>(request);
 
                 return response;
         }
