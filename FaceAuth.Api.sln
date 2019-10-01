@@ -5,9 +5,9 @@ VisualStudioVersion = 16.0.29009.5
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaceAuth.Api", "FaceAuth.Api\FaceAuth.Api.csproj", "{8BCDDA83-2A17-4E69-B5C0-E185371F5DA5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaceAuth.Api.Services", "FaceAuth.Api.Services\FaceAuth.Api.Services.csproj", "{5B0CE6FA-399D-4239-8490-1321070DFD63}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaceAuth.Api.Services", "FaceAuth.Api.Services\FaceAuth.Api.Services.csproj", "{5B0CE6FA-399D-4239-8490-1321070DFD63}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FaceAuth.Api.Tests", "FaceAuth.Api.Tests\FaceAuth.Api.Tests.csproj", "{FCD1916F-34C0-4117-8444-EDD4F9A06891}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FaceAuth.Api.Tests", "FaceAuth.Api.Tests\FaceAuth.Api.Tests.csproj", "{FCD1916F-34C0-4117-8444-EDD4F9A06891}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

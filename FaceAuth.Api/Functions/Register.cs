@@ -15,6 +15,8 @@ using FaceAuth.Api.Helper;
 using System;
 using System.Linq;
 using FaceAuth.Api.Services.Models.CognitiveServices.Requests;
+using AzureFunctions.Extensions.Swashbuckle.Attribute;
+using System.Net;
 
 namespace FaceAuth.Api
 {
@@ -30,7 +32,11 @@ namespace FaceAuth.Api
         }
 
         [FunctionName("Register")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)]HttpRequest req, ILogger log)
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(CreatePerson))]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(string))]
+        public async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)]
+            [RequestBodyType(typeof(RegisterRequest), "Register Request")]HttpRequest req, ILogger log)
         {
             try
             {
