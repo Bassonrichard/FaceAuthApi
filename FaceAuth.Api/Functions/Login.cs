@@ -10,6 +10,8 @@ using FaceAuth.Api.Helper;
 using FaceAuth.Api.Models.Functions.Response;
 using FaceAuth.Api.Services;
 using Microsoft.AspNetCore.Http;
+using AzureFunctions.Extensions.Swashbuckle.Attribute;
+using System.Net;
 
 namespace FaceAuth.Api.Functions
 {
@@ -25,7 +27,11 @@ namespace FaceAuth.Api.Functions
         }
 
         [FunctionName("Login")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)]HttpRequest req, ILogger log)
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(LoginResponse))]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest, Type = typeof(string))]
+        public async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)]
+            [RequestBodyType(typeof(LoginRequest), "Login Request")]HttpRequest req, ILogger log)
         {
             try
             {
