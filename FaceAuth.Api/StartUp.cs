@@ -22,6 +22,7 @@ namespace FaceAuth.Api
             builder.Services.AddSingleton<IFormatter, Formatter>();
             builder.Services.AddSingleton<ICogniativeService, CogniativeService>();
             builder.AddSwashBuckle(Assembly.GetExecutingAssembly());
+      
         }
     }
 

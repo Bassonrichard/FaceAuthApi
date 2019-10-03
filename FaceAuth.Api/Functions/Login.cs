@@ -40,6 +40,7 @@ namespace FaceAuth.Api.Functions
 
                 if (string.IsNullOrEmpty(loginRequest.DataUri))
                 {
+                    log.LogError("Picture not recvieved to backend for e-mail : {0}", loginRequest.Email);
                     return BadRequest(ErrorMessages.ImageNotFound);
                 }
 
@@ -50,10 +51,12 @@ namespace FaceAuth.Api.Functions
 
                 if (detectedFace.Count == 0)
                 {
+                    log.LogError("Face not found in the image: {0}", loginRequest.DataUri);
                     return NotFound(ErrorMessages.FaceNotFound);
                 }
                 else if (detectedFace.Count > 1)
                 {
+                    log.LogError("Too many faces detected in image: {0}", loginRequest.DataUri);
                     return BadRequest(ErrorMessages.TooManyFacesDetected);
                 }
 
@@ -61,6 +64,7 @@ namespace FaceAuth.Api.Functions
 
                 if (string.IsNullOrEmpty(personId))
                 {
+                    log.LogError("PersonId not found with FaceId: {0}", detectedFace[0].faceId);
                     return BadRequest(ErrorMessages.NotRegistered);
                 }
 
@@ -68,6 +72,7 @@ namespace FaceAuth.Api.Functions
 
                 if (person == null)
                 {
+                    log.LogError("PersonId not found with PersonId: {0}", personId);
                     return NotFound(ErrorMessages.PersonNotFound);
                 }
 
@@ -83,13 +88,14 @@ namespace FaceAuth.Api.Functions
                 }
                 else
                 {
+                    log.LogError("Invalid login for: {0}", loginRequest.Email);
                     return Unauthorized();
                 }
 
             }
             catch (Exception ex)
             {
-                log.LogError("Technical Error: ", ex);
+                log.LogError(ex, $"Technical Error: {ex.Message}");
                 return BadRequest(string.Format("Technical Error, unable to login: {0}", ex.InnerException.Message));
             }
         }
