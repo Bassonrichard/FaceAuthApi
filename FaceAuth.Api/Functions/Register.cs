@@ -46,6 +46,7 @@ namespace FaceAuth.Api
 
                 if (string.IsNullOrEmpty(registerRequest.DataUri))
                 {
+                    log.LogError("Picture not recvieved to backend for e-mail : {0}", registerRequest.Email);
                     return BadRequest(ErrorMessages.ImageNotFound);
                 }
 
@@ -61,14 +62,17 @@ namespace FaceAuth.Api
 
                 if (detectedFace.Count == 0)
                 {
+                    log.LogError("Face not found in the image: {0}", registerRequest.DataUri);
                     return NotFound(ErrorMessages.FaceNotFound);
                 }
                 else if (detectedFace.Count > 1)
                 {
+                    log.LogError("Too many faces detected in image: {0}", registerRequest.DataUri);
                     return BadRequest(ErrorMessages.TooManyFacesDetected);
                 }
 
                 var person = await _cogniativeService.CreatePerson(detectedFace[0].faceId, createPerson);
+
                 await _cogniativeService.AddFace(person.personId, image);
                 await _cogniativeService.TrainPersonGroup();
 
@@ -76,7 +80,7 @@ namespace FaceAuth.Api
             }
             catch (Exception ex)
             {
-                log.LogError("Technical Error: ", ex);
+                log.LogError(ex, $"Technical Error: {ex.Message}");
                 return BadRequest(string.Format("Technical Error, unable to register: {0}", ex.InnerException.Message));
             }
             

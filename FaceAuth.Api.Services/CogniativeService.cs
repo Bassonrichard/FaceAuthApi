@@ -12,13 +12,13 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace FaceAuth.Api.Services
-{ 
+{
     public interface ICogniativeService
     {
-         Task<List<DetectedFace>> DetectFaceRequest(byte[] Image);
-         Task<CreatePersonResponse> CreatePerson(string FaceId, CreatePerson createPerson);
-         Task AddFace(string personId, byte[] Image);
-         Task TrainPersonGroup();
+        Task<List<DetectedFace>> DetectFaceRequest(byte[] Image);
+        Task<CreatePersonResponse> CreatePerson(string FaceId, CreatePerson createPerson);
+        Task AddFace(string personId, byte[] Image);
+        Task TrainPersonGroup();
         Task<string> IdentifyPerson(string faceId);
         Task<Person> GetPerson(string personId);
 
@@ -27,107 +27,106 @@ namespace FaceAuth.Api.Services
     public class CogniativeService : ICogniativeService
     {
         private readonly RestClient cogniativeServiceClient = new RestClient(Settings.CogniativeServiceUrl);
-        public  async Task<List<DetectedFace>> DetectFaceRequest(byte[] Image)
+        public async Task<List<DetectedFace>> DetectFaceRequest(byte[] Image)
         {
-                cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
+            cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
 
-                var request = new RestRequest("detect");
-                request.AddQueryParameter("returnFaceId", "true");
-                request.AddQueryParameter("recognitionModel", Settings.CogniativeServiceRecognitionModel);
+            var request = new RestRequest("detect");
+            request.AddQueryParameter("returnFaceId", "true");
+            request.AddQueryParameter("recognitionModel", Settings.CogniativeServiceRecognitionModel);
 
-                request.AddParameter("application/octet-stream", Image, ParameterType.RequestBody);
+            request.AddParameter("application/octet-stream", Image, ParameterType.RequestBody);
 
-                var response = await cogniativeServiceClient.PostAsync<List<DetectedFace>>(request);
+            var response = await cogniativeServiceClient.PostAsync<List<DetectedFace>>(request);
 
-                return response;
+            return response;
         }
 
-        public  async Task<CreatePersonResponse> CreatePerson(string FaceId, CreatePerson createPerson)
+        public async Task<CreatePersonResponse> CreatePerson(string FaceId, CreatePerson createPerson)
         {
-                cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
+            cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
 
-                var request = new RestRequest("persongroups/{persongroupid}/persons");
-                request.AddJsonBody(createPerson);
-                request.AddUrlSegment("persongroupid", Settings.CogniativeServicePersonGroupId);
+            var request = new RestRequest("persongroups/{persongroupid}/persons");
+            request.AddJsonBody(createPerson);
+            request.AddUrlSegment("persongroupid", Settings.CogniativeServicePersonGroupId);
 
-                var response = await cogniativeServiceClient.PostAsync<CreatePersonResponse>(request);
-
-                return response;
+            var response = await cogniativeServiceClient.PostAsync<CreatePersonResponse>(request);
+            return response;
         }
 
-        public  async Task AddFace(string personId, byte[] Image)
+        public async Task AddFace(string personId, byte[] Image)
         {
-                cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
+            cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
 
-                var request = new RestRequest("persongroups/{persongroupid}/persons/{personId}/persistedFaces");
-                request.AddUrlSegment("persongroupid", Settings.CogniativeServicePersonGroupId);
-                request.AddUrlSegment("personId", personId);
+            var request = new RestRequest("persongroups/{persongroupid}/persons/{personId}/persistedFaces");
+            request.AddUrlSegment("persongroupid", Settings.CogniativeServicePersonGroupId);
+            request.AddUrlSegment("personId", personId);
 
-                request.AddParameter("application/octet-stream", Image, ParameterType.RequestBody);
+            request.AddParameter("application/octet-stream", Image, ParameterType.RequestBody);
 
-                await cogniativeServiceClient.PostAsync<AddFaceResponse>(request);
+            await cogniativeServiceClient.PostAsync<AddFaceResponse>(request);
         }
 
-        public  async Task TrainPersonGroup()
+        public async Task TrainPersonGroup()
         {
-                var cancellationTokenSource = new CancellationTokenSource();
-                cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
+            var cancellationTokenSource = new CancellationTokenSource();
+            cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
 
-                var request = new RestRequest("persongroups/{persongroupid}/train");
-                request.AddUrlSegment("persongroupid", Settings.CogniativeServicePersonGroupId);
+            var request = new RestRequest("persongroups/{persongroupid}/train");
+            request.AddUrlSegment("persongroupid", Settings.CogniativeServicePersonGroupId);
 
-                await cogniativeServiceClient.ExecuteTaskAsync(request, cancellationTokenSource.Token, Method.POST);
+            await cogniativeServiceClient.ExecuteTaskAsync(request, cancellationTokenSource.Token, Method.POST);
         }
 
-        public  async Task<string> IdentifyPerson(string faceId)
+        public async Task<string> IdentifyPerson(string faceId)
         {
-                cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
+            cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
 
-                var request = new RestRequest("identify");
+            var request = new RestRequest("identify");
 
-                var identifyRequest = new IdentifyPerson()
-                {
-                    personGroupId = Settings.CogniativeServicePersonGroupId,
-                    faceIds = new List<string>()
+            var identifyRequest = new IdentifyPerson()
+            {
+                personGroupId = Settings.CogniativeServicePersonGroupId,
+                faceIds = new List<string>()
                     {
                         faceId
                     }
-                };
+            };
 
-                request.AddJsonBody(identifyRequest);
+            request.AddJsonBody(identifyRequest);
 
-                var response = await cogniativeServiceClient.PostAsync<List<IdentifyPersonResponse>>(request);
+            var response = await cogniativeServiceClient.PostAsync<List<IdentifyPersonResponse>>(request);
 
-                if (response.Count > 0)
+            if (response.Count > 0)
+            {
+                var Candidates = response.FirstOrDefault().Candidates;
+                if (Candidates.Count > 0)
                 {
-                    var Candidates = response.FirstOrDefault().Candidates;
-                    if (Candidates.Count > 0)
-                    {
-                        var candidate = Candidates.FirstOrDefault();
-                        return candidate.PersonId;
-                    }
-                    else
-                    {
-                        return string.Empty;
-                    }
+                    var candidate = Candidates.FirstOrDefault();
+                    return candidate.PersonId;
                 }
                 else
                 {
                     return string.Empty;
-                }                               
+                }
+            }
+            else
+            {
+                return string.Empty;
+            }
         }
 
-        public  async Task<Person> GetPerson(string personId)
+        public async Task<Person> GetPerson(string personId)
         {
-                cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
+            cogniativeServiceClient.AddDefaultHeader("Ocp-Apim-Subscription-Key", Settings.CogniativeServiceKey);
 
-                var request = new RestRequest("persongroups/{persongroupid}/persons/{personId}");
-                request.AddUrlSegment("persongroupid", Settings.CogniativeServicePersonGroupId);
-                request.AddUrlSegment("personId", personId);
+            var request = new RestRequest("persongroups/{persongroupid}/persons/{personId}");
+            request.AddUrlSegment("persongroupid", Settings.CogniativeServicePersonGroupId);
+            request.AddUrlSegment("personId", personId);
 
-                var response = await cogniativeServiceClient.GetAsync<Person>(request);
+            var response = await cogniativeServiceClient.GetAsync<Person>(request);
 
-                return response;
+            return response;
         }
     }
 }
