@@ -20,3 +20,23 @@ Face auth is a api that allowes you to do facial recognition authentication usin
 ![Face Auth](https://i.imgur.com/eg08i3R.png)
 
 <p>
+
+**Configuration File** ⚙️
+-----
+
+```json
+
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "AzureWebJobsDashboard": "UseDevelopmentStorage=true",
+    "StorageURL": "Storage account connection string.",
+    "CogniativeServiceUrl": "Cogniative services endpoint",
+    "CogniativeServiceKey": "Cogniative services api key",
+    "CogniativeServicePersonGroupId": "Cogniative services group id",
+    "CogniativeServiceRecognitionModel": "Recognition model"
+  }
+}
+
+```
