@@ -1,0 +1,27 @@
+version: 2
+updates:
+- package-ecosystem: nuget
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: Microsoft.NET.Test.Sdk
+    versions:
+    - 16.8.3
+    - 16.9.1
+  - dependency-name: Moq
+    versions:
+    - 4.16.0
+  - dependency-name: Microsoft.ApplicationInsights.DependencyCollector
+    versions:
+    - 2.16.0
+  - dependency-name: Microsoft.ApplicationInsights.PerfCounterCollector
+    versions:
+    - 2.16.0
+  - dependency-name: Microsoft.Extensions.Logging.ApplicationInsights
+    versions:
+    - 2.16.0
+  - dependency-name: Microsoft.ApplicationInsights.AspNetCore
+    versions:
+    - 2.16.0
